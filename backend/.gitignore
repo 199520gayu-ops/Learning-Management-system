@@ -1,0 +1,69 @@
+# ── Dependencies ──
+node_modules/
+
+# ── Environment Variables ──
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# ── Logs ──
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Uploads (multer) ──
+uploads/
+public/uploads/
+temp/
+
+# ── Database ──
+*.sqlite
+*.sqlite3
+*.db
+
+# ── Runtime & Process ──
+pids/
+*.pid
+*.pid.lock
+
+# ── Coverage & Testing ──
+coverage/
+.nyc_output/
+
+# ── Editor & OS ──
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.sw?
+
+# ── Cache ──
+.cache/
+.eslintcache
+.npm/
+
+# ── SSL / Keys / Secrets ──
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+serviceAccountKey.json
+
+# ── Socket.io ──
+.socket/
+
+# ── Misc ──
+.vercel
+.render
+dist/
+build/

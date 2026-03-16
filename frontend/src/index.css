@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Multi-language font support */
+body, html {
+  font-family: 'Poppins', sans-serif, 'Noto Sans', 'Noto Sans Tamil', 'Noto Sans Hindi', 'Noto Sans Devanagari', sans-serif;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+}
+
+* {
+  font-family: 'Noto Sans', 'Noto Sans Tamil', 'Noto Sans Hindi', 'Noto Sans Devanagari', sans-serif;
+  line-height: 1.4;
+}
+
+button, a, input, select, textarea {
+  font-family: 'Noto Sans', 'Noto Sans Tamil', 'Noto Sans Hindi', 'Noto Sans Devanagari', sans-serif;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
