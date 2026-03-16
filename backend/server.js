@@ -38,33 +38,35 @@ try {
 }
 
 /* ================================
-   CORS — ✅ FIXED: use env variable
+   CORS
 ================================ */
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "https://learning-management-system-one-zeta.vercel.app",
+  "https://learning-management-system-ayysxr5as.vercel.app",
   process.env.CLIENT_URL,
-].filter(Boolean); // removes undefined if CLIENT_URL not set
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // allow requests with no origin (Postman, mobile apps)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
+// ✅ Handle preflight requests
+app.options(/(.*)/, cors());
 
 app.use(express.json());
 app.use(passport.initialize());
 
 /* ================================
-   Health Check Route ✅ NEW
+   Health Check Route
 ================================ */
 app.get("/", (req, res) => {
   res.json({
