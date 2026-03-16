@@ -25,7 +25,6 @@ connectDB();
 
 /* ================================
    Gemini AI Initialization
-   ✅ MOVED: Initialize AFTER dotenv loads
 ================================ */
 let genAI;
 try {
@@ -39,10 +38,23 @@ try {
 }
 
 /* ================================
-   Middleware
+   CORS — ✅ FIXED: use env variable
 ================================ */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.CLIENT_URL,
+].filter(Boolean); // removes undefined if CLIENT_URL not set
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: (origin, callback) => {
+    // allow requests with no origin (Postman, mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -52,35 +64,38 @@ app.use(express.json());
 app.use(passport.initialize());
 
 /* ================================
-   Chatbot API
+   Health Check Route ✅ NEW
 ================================ */
+app.get("/", (req, res) => {
+  res.json({
+    status: "✅ Learnify Backend is Live",
+    message: "API is running",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 /* ================================
-   Optimized Chatbot API
+   Chatbot API
 ================================ */
 app.post("/api/chatbot", async (req, res) => {
   const { message } = req.body;
   if (!genAI) return res.status(500).json({ reply: "AI not initialized." });
 
-  // Use the most current 2026 models
-  const modelNames = ["gemini-3-flash-preview", "gemini-2.5-flash", "gemini-1.5-flash"];
+  const modelNames = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
   let reply = null;
 
   for (const modelName of modelNames) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName });
-      
-      // Use a controller to stop the request if a specific model hangs
       const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: `You are Learnify AI. Short answer: ${message}` }] }],
-        generationConfig: { maxOutputTokens: 300 }
+        contents: [{ role: "user", parts: [{ text: `You are Learnify AI. Short answer: ${message}` }] }],
+        generationConfig: { maxOutputTokens: 300 },
       });
-
       const response = await result.response;
       reply = response.text();
-      
       if (reply) {
         console.log(`✅ Success using ${modelName}`);
-        break; 
+        break;
       }
     } catch (err) {
       console.warn(`⚠️ ${modelName} failed, trying next...`);
@@ -94,15 +109,15 @@ app.post("/api/chatbot", async (req, res) => {
 /* ================================
    Routes
 ================================ */
-app.use("/api/auth", authRoutes);
-app.use("/api/courses", courseRoutes);
-app.use("/api/students", studentRoutes);
-app.use("/api/plan", studyPlanRoutes);
+app.use("/api/auth",        authRoutes);
+app.use("/api/courses",     courseRoutes);
+app.use("/api/students",    studentRoutes);
+app.use("/api/plan",        studyPlanRoutes);
 app.use("/api/assignments", assignmentRoutes);
-app.use("/api/quiz", quizRoutes);
+app.use("/api/quiz",        quizRoutes);
 app.use("/api/certificate", certificateRoutes);
-app.use("/api/discussion", discussionRoutes);
-app.use("/api/tasks",taskRoutes);
+app.use("/api/discussion",  discussionRoutes);
+app.use("/api/tasks",       taskRoutes);
 
 /* ================================
    Static Uploads
@@ -112,7 +127,10 @@ app.use("/uploads", express.static("uploads"));
 /* ================================
    Server Start
 ================================ */
-app.listen(process.env.PORT || 5000, () => {
-  console.log("Checking API Key:", process.env.GEMINI_API_KEY ? "✅ Found" : "❌ MISSING");
-  console.log("Server Running on port 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server Running on port ${PORT}`);
+  console.log(`🔑 API Key: ${process.env.GEMINI_API_KEY ? "✅ Found" : "❌ MISSING"}`);
+  console.log(`🌐 CLIENT_URL: ${process.env.CLIENT_URL || "⚠️ Not set"}`);
+  console.log(`✅ Allowed Origins: ${allowedOrigins.join(", ")}`);
 });
